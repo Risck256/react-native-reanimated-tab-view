@@ -105,7 +105,8 @@
       "tagName": "v${version}"
     },
     "npm": {
-      "publish": true
+      "publish": true,
+      "tag": "alpha"
     },
     "github": {
       "release": true
