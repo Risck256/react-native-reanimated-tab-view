@@ -1,5 +1,5 @@
 {
-  "name": "react-native-reanimated-tabview",
+  "name": "react-native-reanimated-tab-view",
   "version": "0.1.0-alpha.0",
   "description": "An implementation of Tab View fully managed by react-native-reanimated library",
   "main": "lib/commonjs/index",
@@ -40,13 +40,13 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/risck256/react-native-reanimated-tabview",
+  "repository": "https://github.com/risck256/react-native-reanimated-tab-view",
   "author": "Umberto Lanno <umberto.lanno@gmail.com> (https://github.com/risck256)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/risck256/react-native-reanimated-tabview/issues"
+    "url": "https://github.com/risck256/react-native-reanimated-tab-view/issues"
   },
-  "homepage": "https://github.com/risck256/react-native-reanimated-tabview#readme",
+  "homepage": "https://github.com/risck256/react-native-reanimated-tab-view#readme",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

@@ -1,11 +1,11 @@
-# react-native-reanimated-tabview
+# react-native-reanimated-tab-view
 
 An implementation of Tab View fully managed by react-native-reanimated library
 
 ## Installation
 
 ```sh
-yarn add react-native-reanimated-tabview
+yarn add react-native-reanimated-tab-view
 ```
 
 ## Usage
