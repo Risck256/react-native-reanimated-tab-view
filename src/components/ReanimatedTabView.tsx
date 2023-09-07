@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import type {
   NavigationState,
@@ -25,25 +24,23 @@ import { AnimationHelper } from '../utils/AnimationHelper';
 export interface ReanimatedTabViewProps {
   renderTabBar?: (params: RenderTabsParams) => void;
   renderScene: (params: SceneProps) => React.ReactNode;
-  initialIndex?: number;
-  style?: StyleProp<ViewStyle>;
   navigationState: NavigationState;
   onIndexChange: (index: number) => void;
   percentageTrigger?: number;
   positionInterpolation?: PositionInterpolation;
+  lazy?: boolean;
   LazyPlaceholder?: () => React.ReactNode;
 }
 
 export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
   ({
-    initialIndex = 0,
-    style = defaultStyles.flex,
     renderScene,
     navigationState,
     onIndexChange,
     renderTabBar,
     percentageTrigger = 0.4,
     positionInterpolation,
+    lazy = false,
     LazyPlaceholder = () => null,
   }) => {
     const { width } = useWindowDimensions();
@@ -51,7 +48,7 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
       navigationState.routes[navigationState.index],
     ]);
     // const width = 160;
-    const scrollPosition = useSharedValue(initialIndex);
+    const scrollPosition = useSharedValue(navigationState.index);
 
     const position = useDerivedValue(() => {
       if (!positionInterpolation) {
@@ -148,6 +145,9 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
 
     const Routes = useMemo(() => {
       return navigationState.routes.map((route, index) => {
+        if (!lazy) {
+          return chooseRender({ route, jumpTo });
+        }
         const screen = loadedScreens.current.find(
           (loadedScreen) => loadedScreen?.key === route.key
         );
@@ -160,11 +160,17 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
         }
         return chooseRender({ route, jumpTo }, false);
       });
-    }, [jumpTo, navigationState.index, navigationState.routes, chooseRender]);
+    }, [
+      navigationState.routes,
+      navigationState.index,
+      lazy,
+      chooseRender,
+      jumpTo,
+    ]);
 
     return (
       <GestureHandlerRootView style={defaultStyles.flex}>
-        <View style={style}>
+        <View style={defaultStyles.flex}>
           {renderTabBar ? renderTabBar({ navigationState, position }) : null}
           <GestureDetector gesture={panGesture}>
             <Animated.View
