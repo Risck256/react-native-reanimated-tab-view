@@ -1,55 +1,38 @@
 import * as React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useCallback, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SceneMap } from '../../src/utils/SceneMap';
-import { ReanimatedTabView } from '../../src/components/ReanimatedTabView';
+import { ReanimatedTabView } from 'react-native-reanimated-tab-view';
 import type { RenderTabsParams } from '../../src/types/types';
+import { ImagesList } from './components/ImagesList';
+import { posts } from './mocks/posts';
+import { TabBar } from './components/TabBar';
 
 export default function App() {
   const [index, setIndex] = useState(0);
   const renderScene = SceneMap({
-    first: <View style={{ flex: 1, backgroundColor: 'blue' }} />,
-    second: <View style={{ flex: 1, backgroundColor: 'red' }} />,
-    third: (
-        <ScrollView nestedScrollEnabled style={{ elevation: 1000 }}>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((a) => (
-            <View key={a} style={{ height: 120, borderWidth: 1 }} />
-          ))}
-        </ScrollView>
-    ),
+    first: <ImagesList data={[...posts].slice(0, 5)} numColumns={3} />,
+    second: <ImagesList data={[...posts].slice(0, 10)} numColumns={3} />,
+    third: <ImagesList data={posts} numColumns={3} />,
   });
 
   const routes = useMemo(
     () => [
-      { key: 'first', title: 'Ciao' },
-      { key: 'second', title: 'Culo' },
-      { key: 'third', title: 'fdsaf' },
+      { key: 'first', title: 'Posts' },
+      { key: 'second', title: 'Reels' },
+      { key: 'third', title: 'Tagged' },
     ],
     []
   );
+  const { width } = useWindowDimensions();
 
-  const renderTabBar = useCallback(({ navigationState }: RenderTabsParams) => {
-    return (
-      <View
-        style={{ flexDirection: 'row', backgroundColor: 'white', height: 50 }}
-      >
-        {navigationState.routes.map((route, index) => (
-          <Pressable style={{ flex: 1 }} onPress={() => setIndex(index)}>
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor:
-                  index === navigationState.index ? 'blue' : 'transparent',
-              }}
-            >
-              <Text>{route.title}</Text>
-            </View>
-          </Pressable>
-        ))}
-      </View>
-    );
+  const renderTabBar = useCallback((state: RenderTabsParams) => {
+    return <TabBar state={state} onPress={setIndex} />;
   }, []);
 
   return (
@@ -59,6 +42,17 @@ export default function App() {
         navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}
+        positionInterpolation={{
+          input: [0, width * (routes.length - 1)],
+          output: [0, (width * (routes.length - 1)) / 3],
+        }}
+        LazyPlaceholder={() => (
+          <View
+            style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <ActivityIndicator size="large" />
+          </View>
+        )}
       />
     </View>
   );
@@ -67,7 +61,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 200,
   },
   box: {
     width: 60,

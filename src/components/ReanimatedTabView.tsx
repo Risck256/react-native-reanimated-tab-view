@@ -1,11 +1,12 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import type {
   NavigationState,
+  PositionInterpolation,
   RenderTabsParams,
   SceneProps,
 } from '../types/types';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import {
   Gesture,
   GestureDetector,
@@ -16,6 +17,7 @@ import Animated, {
   interpolate,
   runOnJS,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
 } from 'react-native-reanimated';
 import { AnimationHelper } from '../utils/AnimationHelper';
@@ -28,6 +30,8 @@ export interface ReanimatedTabViewProps {
   navigationState: NavigationState;
   onIndexChange: (index: number) => void;
   percentageTrigger?: number;
+  positionInterpolation?: PositionInterpolation;
+  LazyPlaceholder?: () => React.ReactNode;
 }
 
 export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
@@ -39,10 +43,27 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
     onIndexChange,
     renderTabBar,
     percentageTrigger = 0.4,
+    positionInterpolation,
+    LazyPlaceholder = () => null,
   }) => {
     const { width } = useWindowDimensions();
+    const loadedScreens = useRef([
+      navigationState.routes[navigationState.index],
+    ]);
     // const width = 160;
     const scrollPosition = useSharedValue(initialIndex);
+
+    const position = useDerivedValue(() => {
+      if (!positionInterpolation) {
+        return -scrollPosition.value;
+      }
+      return interpolate(
+        -scrollPosition.value,
+        positionInterpolation.input,
+        positionInterpolation.output,
+        Extrapolation.CLAMP
+      );
+    }, [positionInterpolation]);
 
     useEffect(() => {
       scrollPosition.value = AnimationHelper.animation(
@@ -116,10 +137,35 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
       [navigationState.routes, onIndexChange, scrollPosition, width]
     );
 
+    const chooseRender = useCallback(
+      (params: SceneProps, useRenderScene = true) => (
+        <View key={`RNNTabView_${params.route.key}`} style={{ width }}>
+          {useRenderScene ? renderScene(params) : LazyPlaceholder()}
+        </View>
+      ),
+      [LazyPlaceholder, renderScene, width]
+    );
+
+    const Routes = useMemo(() => {
+      return navigationState.routes.map((route, index) => {
+        const screen = loadedScreens.current.find(
+          (loadedScreen) => loadedScreen?.key === route.key
+        );
+        if (screen !== undefined) {
+          return chooseRender({ route, jumpTo });
+        }
+        if (navigationState.index === index) {
+          loadedScreens.current.push(route);
+          return chooseRender({ route, jumpTo });
+        }
+        return chooseRender({ route, jumpTo }, false);
+      });
+    }, [jumpTo, navigationState.index, navigationState.routes, chooseRender]);
+
     return (
       <GestureHandlerRootView style={defaultStyles.flex}>
         <View style={style}>
-          {renderTabBar ? renderTabBar({ navigationState }) : null}
+          {renderTabBar ? renderTabBar({ navigationState, position }) : null}
           <GestureDetector gesture={panGesture}>
             <Animated.View
               style={[
@@ -129,11 +175,7 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
                 defaultStyles.viewsContainer,
               ]}
             >
-              {navigationState.routes.map((route) => (
-                <View key={route.key} style={{ width }}>
-                  {renderScene({ route: route, jumpTo: jumpTo })}
-                </View>
-              ))}
+              {Routes}
             </Animated.View>
           </GestureDetector>
         </View>

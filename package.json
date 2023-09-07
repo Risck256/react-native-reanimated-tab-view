@@ -1,6 +1,6 @@
 {
   "name": "react-native-reanimated-tab-view",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An implementation of Tab View fully managed by react-native-reanimated library",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -105,8 +105,7 @@
       "tagName": "v${version}"
     },
     "npm": {
-      "publish": true,
-      "tag": "alpha"
+      "publish": true
     },
     "github": {
       "release": true
