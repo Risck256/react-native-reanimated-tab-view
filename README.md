@@ -81,20 +81,12 @@ export const TabView = () => {
 | renderTabBar          | Used to render a TabBar custom component                            | function                                        | false    | -       |
 
 ## Types
-#### Route
-```js
-{ key: string; title: string }
-```
+#### Route `{ key: string; title: string }`
 
-#### NavigationState
-```js
-{ index: number; routes: Route[] }
-```
+#### NavigationState `{ index: number; routes: Route[] }`
 
-#### PositionInterpolation
-```js
-{ input: number[]; output: number[] }
-```
+
+#### PositionInterpolation `{ input: number[]; output: number[] }`
 
 ## Contributing
 
