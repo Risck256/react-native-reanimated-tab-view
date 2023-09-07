@@ -25,7 +25,7 @@ yarn add react-native-reanimated react-native-gesture-handler
 ```
 According to react-native-reanimated documentation, it needs to add this line in babel.config.js
 
-```js
+```javascript
 module.exports = {
   presets: [/*...*/],
   plugins: [/* other plugins, */ 'react-native-reanimated/plugin'], // <-- add this (the reanimated's plugin MUST BE the last)
@@ -34,7 +34,7 @@ module.exports = {
 
 ## Usage Example
 
-```
+```javascript
 import React, { useMemo, useState } from 'react';
 import { View } from 'react-native';
 import { ReanimatedTabView, SceneMap } from 'react-native-reanimated-tab-view';
@@ -67,6 +67,8 @@ export const TabView = () => {
 };
 ```
 
+To see full implementation, see [example](/example) folder
+
 ## Properties
 
 | Property              | Description                                                         | Type                                            | Required | Default |
@@ -84,7 +86,6 @@ export const TabView = () => {
 #### Route `{ key: string; title: string }`
 
 #### NavigationState `{ index: number; routes: Route[] }`
-
 
 #### PositionInterpolation `{ input: number[]; output: number[] }`
 
