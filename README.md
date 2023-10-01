@@ -81,6 +81,7 @@ To see full implementation, see [example](/example) folder
 | lazy                  | Decide to render only visible tabs or all tabs at component's mount | boolean                                         | false    | false   |
 | LazyPlaceholder       | Component to render when lazy is true                               | function                                        | false    | null    |
 | renderTabBar          | Used to render a TabBar custom component                            | function                                        | false    | -       |
+| swipeEnabled          | Enable the swipe gesture to change Tab                              | boolean                                         | false    | true    |
 
 ## Types
 #### Route `{ key: string; title: string }`

@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import type {
-  NavigationState,
-  PositionInterpolation,
-  RenderTabsParams,
+  ReanimatedTabViewProps,
   SceneProps,
 } from '../types/types';
 import {
@@ -21,17 +19,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { AnimationHelper } from '../utils/AnimationHelper';
 
-export interface ReanimatedTabViewProps {
-  renderTabBar?: (params: RenderTabsParams) => void;
-  renderScene: (params: SceneProps) => React.ReactNode;
-  navigationState: NavigationState;
-  onIndexChange: (index: number) => void;
-  percentageTrigger?: number;
-  positionInterpolation?: PositionInterpolation;
-  lazy?: boolean;
-  LazyPlaceholder?: () => React.ReactNode;
-}
-
 export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
   ({
     renderScene,
@@ -42,6 +29,9 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
     positionInterpolation,
     lazy = false,
     LazyPlaceholder = () => null,
+    swipeEnabled = true,
+    absoluteTabBar = false,
+    customTabBarPosition = {},
   }) => {
     const { width } = useWindowDimensions();
     const loadedScreens = useRef([
@@ -76,6 +66,7 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
     const panGesture = React.useMemo(
       () =>
         Gesture.Pan()
+          .enabled(swipeEnabled)
           .failOffsetY(-10)
           .failOffsetY(10)
           .activeOffsetX([-20, 20])
@@ -103,6 +94,7 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
         onIndexChange,
         scrollPosition,
         width,
+        swipeEnabled,
       ]
     );
 
@@ -171,7 +163,9 @@ export const ReanimatedTabView = React.memo<ReanimatedTabViewProps>(
     return (
       <GestureHandlerRootView style={defaultStyles.flex}>
         <View style={defaultStyles.flex}>
-          {renderTabBar ? renderTabBar({ navigationState, position }) : null}
+          <View style={absoluteTabBar && [defaultStyles.tabBarContainerAbsolute, customTabBarPosition]}>
+            {renderTabBar ? renderTabBar({ navigationState, position }) : null}
+          </View>
           <GestureDetector gesture={panGesture}>
             <Animated.View
               style={[
@@ -196,5 +190,12 @@ const defaultStyles = StyleSheet.create({
   },
   viewsContainer: {
     flexDirection: 'row',
+  },
+  tabBarContainerAbsolute: {
+    position: 'absolute',
+    zIndex: 1000,
+    elevation: 1,
+    left: 0,
+    right: 0,
   },
 });
